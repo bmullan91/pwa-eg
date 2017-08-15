@@ -29,6 +29,10 @@ module.exports = function renderAppShell(req, res) {
     return;
   }
 
+  const initialState = {
+    isAppShell: req.url === '/app-shell'
+  };
+
   res.send(`
     <!doctype html>
     <html>
@@ -36,6 +40,7 @@ module.exports = function renderAppShell(req, res) {
       </head>
       <body>
         <div id="app-root">${html}</div>
+        <script>window.__INITIAL_STATE__= ${JSON.stringify(initialState)}</script>
         <script src="/public/js/app-shell.js"></script>
       </body>
     </html>

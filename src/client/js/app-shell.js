@@ -30,6 +30,11 @@ const routes = [
 ];
 
 function generateRoutes() {
+  if (window.__INITIAL_STATE__.isAppShell) {
+    return Promise.resolve(routes);
+  }
+
+
   let matchedRoute;
   const asyncRoutes = routes.filter((route) => {
     if (matchPath(window.location.pathname, route)) {
