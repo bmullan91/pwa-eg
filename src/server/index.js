@@ -18,6 +18,7 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, '../../build')));
 app.get('/', appShellHandler);
 app.get('/article', appShellHandler);
+app.get('/app-shell', appShellHandler);
 app.get('/sw.js', express.static(path.join(__dirname, '../../build/public/js')))
 app.listen(3000, (err) => {
   if (err) {
