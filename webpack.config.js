@@ -12,7 +12,8 @@ const PATHS = {
 
 const commonConfig = {
   entry: {
-    'app-shell': path.join(PATHS.src, 'client/js/app-shell.js')
+    'app-shell': path.join(PATHS.src, 'client/js/app-shell.js'),
+    sw: path.join(PATHS.src, 'client/js/sw.js')
   },
   devtool: '#cheap-module-source-map',
   module: {
@@ -49,16 +50,13 @@ const commonConfig = {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV)
       }
     }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'common' // Specify the common bundle's name.
-    })
-    //,
-    // new CopyWebpackPlugin([
-    //   {
-    //     from: path.join(PATHS.src, 'client/assets'),
-    //     to: path.join(PATHS.build, 'public')
-    //   }
-    // ])
+    // copy workbox-sw to public
+    new CopyWebpackPlugin([
+      {
+        from: require.resolve('workbox-sw'),
+        to: path.join(PATHS.build, 'public/js/workbox-sw.js')
+      }
+    ])
   ]
 };
 

@@ -36,7 +36,6 @@ module.exports = function renderAppShell(req, res) {
       </head>
       <body>
         <div id="app-root">${html}</div>
-        <script src="/public/js/common.js"></script>
         <script src="/public/js/app-shell.js"></script>
       </body>
     </html>
