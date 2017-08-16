@@ -12,3 +12,8 @@ workboxSW.router.registerRoute(
   '/public/*',
   workboxSW.strategies.cacheFirst()
 );
+
+workboxSW.router.registerRoute(
+  '/api/initial-states/:contentType/:slug',
+  workboxSW.strategies.cacheFirst()
+);

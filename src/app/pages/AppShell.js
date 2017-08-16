@@ -12,6 +12,15 @@ class AppShell extends Component {
 }
 
 // nothing to fetch for the app shell
-AppShell.getInitialState = ({ store }) => Promise.resolve(store.getState());
+AppShell.getInitialState = ({ store }) => {
+  return Promise.resolve({
+    context: {
+      isAppShell: true
+    },
+    primary: {
+      hed: 'loading'
+    }
+  });
+};
 
 module.exports = AppShell;

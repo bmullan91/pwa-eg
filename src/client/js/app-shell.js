@@ -3,12 +3,13 @@ const { render } = require('react-dom');
 const { matchPath } = require('react-router');
 const { BrowserRouter } = require('react-router-dom');
 const { Provider: ReduxProvider } = require('react-redux');
+const { asyncComponent } = require('react-async-component');
 
 const App = require('../../app');
 const { initStore } = require('../../app/store');
 const container = document.getElementById('app-root');
 
-const { asyncComponent } = require('react-async-component');
+const AppShellPage = require('../../app/pages/AppShell');
 
 const loadHomePage = () => System.import('../../app/pages/Home');
 const loadArticlePage = () => System.import('../../app/pages/Article');
@@ -36,19 +37,29 @@ const routeConfig = [
   },
   {
     path: '/app-shell',
+    // can probably load this sync
     loadComponent: () => System.import('../../app/pages/AppShell')
   }
 ];
 
 function init() {
   const store = initStore(window.__INITIAL_STATE__);
+  const isAppShell = window.__INITIAL_STATE__.context.isAppShell;
   const routes = routeConfig.map(route => {
     return Object.assign({}, route, {
       component: asyncComponent({
+        LoadingComponent: AppShellPage,
         resolve: () => loadPageAndInitialState(route.loadComponent, store)
       })
     })
   });
+
+  if (isAppShell) {
+    return Promise.resolve({
+      routes,
+      store
+    });
+  }
 
 
   let matchedRoute;
