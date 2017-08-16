@@ -2,37 +2,53 @@ const React = require('react');
 const { render } = require('react-dom');
 const { matchPath } = require('react-router');
 const { BrowserRouter } = require('react-router-dom');
+const { Provider: ReduxProvider } = require('react-redux');
 
 const App = require('../../app');
+const { initStore } = require('../../app/store');
 const container = document.getElementById('app-root');
 
 const { asyncComponent } = require('react-async-component');
 
-const loadHomepage = () => System.import('../../app/pages/Home');
-const loadArticlepage = () => System.import('../../app/pages/Article')
+const loadHomePage = () => System.import('../../app/pages/Home');
+const loadArticlePage = () => System.import('../../app/pages/Article');
+const loadAppShellPage = () => System.import('../../app/pages/AppShell');
 
-const routes = [
+function loadPageAndInitialState(loadComponent, store) {
+  let component;
+  return loadComponent()
+    .then(Component => {
+      component = Component;
+      return Component.getInitialState({ store });
+    })
+    .then(() => component);
+}
+
+const routeConfig = [
   {
     path: '/',
     exact: true,
-    loadComponent: loadHomepage,
-    component: asyncComponent({
-      resolve: loadHomepage
-    })
+    loadComponent: () => System.import('../../app/pages/Home')
   },
   {
     path: '/article',
-    loadComponent: loadArticlepage,
-    component: asyncComponent({
-      resolve: loadArticlepage
-    })
+    loadComponent: () => System.import('../../app/pages/Article')
+  },
+  {
+    path: '/app-shell',
+    loadComponent: () => System.import('../../app/pages/AppShell')
   }
 ];
 
-function generateRoutes() {
-  if (window.__INITIAL_STATE__.isAppShell) {
-    return Promise.resolve(routes);
-  }
+function init() {
+  const store = initStore(window.__INITIAL_STATE__);
+  const routes = routeConfig.map(route => {
+    return Object.assign({}, route, {
+      component: asyncComponent({
+        resolve: () => loadPageAndInitialState(route.loadComponent, store)
+      })
+    })
+  });
 
 
   let matchedRoute;
@@ -47,20 +63,31 @@ function generateRoutes() {
   });
 
   if (!matchedRoute || typeof matchedRoute.loadComponent !== 'function') {
-    return Promise.resolve(asyncRoutes);
+    return Promise.resolve({
+      store,
+      routes: asyncRoutes
+    });
   }
 
-  return matchedRoute.loadComponent().then(component => {
-    const updatedMatchedRoute = Object.assign({}, matchedRoute, { component });
-    return [...asyncRoutes, updatedMatchedRoute];
-  })
+  // no need to loadPageAndInitialState
+  // we have it in the window object
+  return matchedRoute.loadComponent()
+    .then(component => {
+      const updatedMatchedRoute = Object.assign({}, matchedRoute, { component });
+      return {
+        store, // store will have been updated after getInitialState
+        routes: [...asyncRoutes, updatedMatchedRoute]
+      }
+    });
 }
 
-generateRoutes().then(routes => {
+init().then(({ routes, store }) => {
   render(
-    <BrowserRouter>
-      <App routes={routes} />
-    </BrowserRouter>,
+    <ReduxProvider store={store}>
+      <BrowserRouter>
+        <App routes={routes} />
+      </BrowserRouter>
+    </ReduxProvider>,
     container
   );
 });

@@ -8,6 +8,7 @@ const { StaticRouter } = require('react-router');
 
 const App = require('../app');
 const appShellHandler = require('./app-shell-handler');
+const apiInitialStatesHandler = require('./api-initial-states-handler');
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.static(path.join(__dirname, '../../build')));
 app.get('/', appShellHandler);
 app.get('/article', appShellHandler);
 app.get('/app-shell', appShellHandler);
+app.get('/api/initial-states/:contentType/:slug', apiInitialStatesHandler);
 app.get('/sw.js', express.static(path.join(__dirname, '../../build/public/js')))
 app.listen(3000, (err) => {
   if (err) {

@@ -1,8 +1,10 @@
 const React = require('react');
 const ReactDOMServer = require('react-dom/server');
-const { StaticRouter } = require('react-router');
+const { StaticRouter, matchPath } = require('react-router');
+const { Provider: ReduxProvider } = require('react-redux');
 
 const App = require('../app');
+const { DEFAULT_INITIAL_STATE, initStore } = require('../app/store');
 const reactRouterRoutes = [
   {
     path: '/',
@@ -12,37 +14,43 @@ const reactRouterRoutes = [
   {
     path: '/article',
     component: require('../app/pages/Article')
+  },
+  {
+    path: '/app-shell',
+    component: require('../app/pages/AppShell')
   }
 ];
 
 module.exports = function renderAppShell(req, res) {
-  const context = {};
+  const routerContext = {};
+  const store = initStore();
+  const { component: PageComponent } = reactRouterRoutes.filter(route => matchPath(req.url, route))[0];
 
-  const html = ReactDOMServer.renderToString(
-    <StaticRouter location={req.url} context={context}>
-      <App routes={reactRouterRoutes} />
-    </StaticRouter>
-  )
+  PageComponent.getInitialState({ store }).then(initialState => {
+    const html = ReactDOMServer.renderToString(
+      <ReduxProvider store={store}>
+        <StaticRouter location={req.url} context={routerContext}>
+          <App routes={reactRouterRoutes} />
+        </StaticRouter>
+      </ReduxProvider>
+    )
 
-  if (context.url) {
-    res.redirect(301, context.url);
-    return;
-  }
+    if (routerContext.url) {
+      res.redirect(301, routerContext.url);
+      return;
+    }
 
-  const initialState = {
-    isAppShell: req.url === '/app-shell'
-  };
-
-  res.send(`
-    <!doctype html>
-    <html>
-      <head>
-      </head>
-      <body>
-        <div id="app-root">${html}</div>
-        <script>window.__INITIAL_STATE__= ${JSON.stringify(initialState)}</script>
-        <script src="/public/js/app-shell.js"></script>
-      </body>
-    </html>
-  `);
+    res.send(`
+      <!doctype html>
+      <html>
+        <head>
+        </head>
+        <body>
+          <div id="app-root">${html}</div>
+          <script>window.__INITIAL_STATE__= ${JSON.stringify(initialState)}</script>
+          <script src="/public/js/app-shell.js"></script>
+        </body>
+      </html>
+    `);
+  });
 }
