@@ -17,7 +17,7 @@ const reactRouterRoutes = [
   },
   {
     path: '/app-shell',
-    component: require('../app/pages/AppShell')
+    component: require('../app/pages/Loading')
   }
 ];
 

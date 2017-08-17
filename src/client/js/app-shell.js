@@ -9,11 +9,11 @@ const App = require('../../app');
 const { initStore } = require('../../app/store');
 const container = document.getElementById('app-root');
 
-const AppShellPage = require('../../app/pages/AppShell');
+const LoadingPage = require('../../app/pages/Loading');
 
 const loadHomePage = () => System.import('../../app/pages/Home');
 const loadArticlePage = () => System.import('../../app/pages/Article');
-const loadAppShellPage = () => System.import('../../app/pages/AppShell');
+const loadLoadingPage = () => System.import('../../app/pages/Loading');
 
 function loadPageAndInitialState(loadComponent, store) {
   let component;
@@ -38,7 +38,7 @@ const routeConfig = [
   {
     path: '/app-shell',
     // can probably load this sync
-    loadComponent: () => System.import('../../app/pages/AppShell')
+    loadComponent: () => System.import('../../app/pages/Loading')
   }
 ];
 
@@ -48,7 +48,7 @@ function init() {
   const routes = routeConfig.map(route => {
     return Object.assign({}, route, {
       component: asyncComponent({
-        LoadingComponent: AppShellPage,
+        LoadingComponent: LoadingPage,
         resolve: () => loadPageAndInitialState(route.loadComponent, store)
       })
     })

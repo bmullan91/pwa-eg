@@ -1,18 +1,18 @@
 const React = require('react');
 const { Component } = React;
 
-class AppShell extends Component {
+class LoadingPage extends Component {
   render() {
     return (
       <div>
-        AppShell
+        LoadingPage
       </div>
     );
   }
 }
 
 // nothing to fetch for the app shell
-AppShell.getInitialState = ({ store }) => {
+LoadingPage.getInitialState = ({ store }) => {
   return Promise.resolve({
     context: {
       isAppShell: true
@@ -23,4 +23,4 @@ AppShell.getInitialState = ({ store }) => {
   });
 };
 
-module.exports = AppShell;
+module.exports = LoadingPage;
