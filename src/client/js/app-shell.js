@@ -2,36 +2,63 @@ const React = require('react');
 const { render } = require('react-dom');
 const { matchPath } = require('react-router');
 const { BrowserRouter } = require('react-router-dom');
-
-const App = require('../../app');
-const container = document.getElementById('app-root');
-
+const { Provider: ReduxProvider } = require('react-redux');
 const { asyncComponent } = require('react-async-component');
 
-const loadHomepage = () => System.import('../../app/pages/Home');
-const loadArticlepage = () => System.import('../../app/pages/Article')
+const App = require('../../app');
+const { initStore } = require('../../app/store');
+const container = document.getElementById('app-root');
 
-const routes = [
+const LoadingPage = require('../../app/pages/Loading');
+
+const loadHomePage = () => System.import('../../app/pages/Home');
+const loadArticlePage = () => System.import('../../app/pages/Article');
+const loadLoadingPage = () => System.import('../../app/pages/Loading');
+
+function loadPageAndInitialState(loadComponent, store) {
+  let component;
+  return loadComponent()
+    .then(Component => {
+      component = Component;
+      return Component.getInitialState({ store });
+    })
+    .then(() => component);
+}
+
+const routeConfig = [
   {
     path: '/',
     exact: true,
-    loadComponent: loadHomepage,
-    component: asyncComponent({
-      resolve: loadHomepage
-    })
+    loadComponent: () => System.import('../../app/pages/Home')
   },
   {
     path: '/article',
-    loadComponent: loadArticlepage,
-    component: asyncComponent({
-      resolve: loadArticlepage
-    })
+    loadComponent: () => System.import('../../app/pages/Article')
+  },
+  {
+    path: '/app-shell',
+    // can probably load this sync
+    loadComponent: () => System.import('../../app/pages/Loading')
   }
 ];
 
-function generateRoutes() {
-  if (window.__INITIAL_STATE__.isAppShell) {
-    return Promise.resolve(routes);
+function init() {
+  const store = initStore(window.__INITIAL_STATE__);
+  const isAppShell = window.__INITIAL_STATE__.context.isAppShell;
+  const routes = routeConfig.map(route => {
+    return Object.assign({}, route, {
+      component: asyncComponent({
+        LoadingComponent: LoadingPage,
+        resolve: () => loadPageAndInitialState(route.loadComponent, store)
+      })
+    })
+  });
+
+  if (isAppShell) {
+    return Promise.resolve({
+      routes,
+      store
+    });
   }
 
 
@@ -47,20 +74,31 @@ function generateRoutes() {
   });
 
   if (!matchedRoute || typeof matchedRoute.loadComponent !== 'function') {
-    return Promise.resolve(asyncRoutes);
+    return Promise.resolve({
+      store,
+      routes: asyncRoutes
+    });
   }
 
-  return matchedRoute.loadComponent().then(component => {
-    const updatedMatchedRoute = Object.assign({}, matchedRoute, { component });
-    return [...asyncRoutes, updatedMatchedRoute];
-  })
+  // no need to loadPageAndInitialState
+  // we have it in the window object
+  return matchedRoute.loadComponent()
+    .then(component => {
+      const updatedMatchedRoute = Object.assign({}, matchedRoute, { component });
+      return {
+        store, // store will have been updated after getInitialState
+        routes: [...asyncRoutes, updatedMatchedRoute]
+      }
+    });
 }
 
-generateRoutes().then(routes => {
+init().then(({ routes, store }) => {
   render(
-    <BrowserRouter>
-      <App routes={routes} />
-    </BrowserRouter>,
+    <ReduxProvider store={store}>
+      <BrowserRouter>
+        <App routes={routes} />
+      </BrowserRouter>
+    </ReduxProvider>,
     container
   );
 });
