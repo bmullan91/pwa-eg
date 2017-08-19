@@ -1,29 +1,16 @@
 const React = require('react');
 const { render } = require('react-dom');
+const Loadable = require('react-loadable');
 const { matchPath } = require('react-router');
 const { BrowserRouter } = require('react-router-dom');
 const { Provider: ReduxProvider } = require('react-redux');
-const { asyncComponent } = require('react-async-component');
 
 const App = require('../../app');
 const { initStore } = require('../../app/store');
 const container = document.getElementById('app-root');
 
 const LoadingPage = require('../../app/pages/Loading');
-
-const loadHomePage = () => System.import('../../app/pages/Home');
-const loadArticlePage = () => System.import('../../app/pages/Article');
-const loadLoadingPage = () => System.import('../../app/pages/Loading');
-
-function loadPageAndInitialState(loadComponent, store) {
-  let component;
-  return loadComponent()
-    .then(Component => {
-      component = Component;
-      return Component.getInitialState({ store });
-    })
-    .then(() => component);
-}
+const PageLoader = require('../../app/components/PageLoader');
 
 const routeConfig = [
   {
@@ -37,7 +24,6 @@ const routeConfig = [
   },
   {
     path: '/app-shell',
-    // can probably load this sync
     loadComponent: () => System.import('../../app/pages/Loading')
   }
 ];
@@ -47,11 +33,20 @@ function init() {
   const isAppShell = window.__INITIAL_STATE__.context.isAppShell;
   const routes = routeConfig.map(route => {
     return Object.assign({}, route, {
-      component: asyncComponent({
-        LoadingComponent: LoadingPage,
-        resolve: () => loadPageAndInitialState(route.loadComponent, store)
+      component: Loadable({
+        loading: LoadingPage,
+        loader: route.loadComponent,
+        render: (PageComponent, props) => {
+          return (
+            <PageLoader
+              store={store}
+              PageComponent={PageComponent}
+              LoadingComponent={LoadingPage}
+            />
+          );
+        }
       })
-    })
+    });
   });
 
   if (isAppShell) {
@@ -80,8 +75,6 @@ function init() {
     });
   }
 
-  // no need to loadPageAndInitialState
-  // we have it in the window object
   return matchedRoute.loadComponent()
     .then(component => {
       const updatedMatchedRoute = Object.assign({}, matchedRoute, { component });
