@@ -15,7 +15,7 @@ const routeConfig = [
   {
     path: '/',
     exact: true,
-    loadComponent: () => System.import(/* webpackChunkName: "home" */'../../app/pages/Home')
+    loadComponent: () => System.import(/* webpackChunkName: "homepage" */'../../app/pages/Home')
   },
   {
     path: '/story/:slug',

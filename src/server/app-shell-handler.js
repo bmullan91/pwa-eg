@@ -45,15 +45,26 @@ module.exports = function renderAppShell(req, res) {
       return;
     }
 
+    const contentType = initialState.context.contentType;
+    const chunkPreloadLink = contentType
+      ? `<link rel="preload" href="/public/js/${contentType}.chunk.js" as="script">`
+      : '';
+    const chunkScript = contentType
+      ? `<script defer src="/public/js/${contentType}.chunk.js"></script>`
+      : '';
+
     res.send(`
       <!doctype html>
       <html>
         <head>
+          <link rel="preload" href="/public/js/app-shell.js" as="script">
+          ${chunkPreloadLink}
         </head>
         <body>
           <div id="app-root">${html}</div>
           <script>window.__INITIAL_STATE__= ${JSON.stringify(initialState)}</script>
-          <script src="/public/js/app-shell.js"></script>
+          <script defer src="/public/js/app-shell.js"></script>
+          ${chunkScript}
         </body>
       </html>
     `);
