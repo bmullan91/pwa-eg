@@ -42,6 +42,7 @@ const commonConfig = {
   output: {
     filename: 'public/js/[name].js',
     chunkFilename: 'public/js/[name].chunk.js',
+    publicPath: '/',
     path: PATHS.build
   },
   plugins: [

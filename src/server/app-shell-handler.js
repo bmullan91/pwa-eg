@@ -12,7 +12,7 @@ const reactRouterRoutes = [
     component: require('../app/pages/Home')
   },
   {
-    path: '/article',
+    path: '/story/:slug',
     component: require('../app/pages/Article')
   },
   {
@@ -26,7 +26,12 @@ module.exports = function renderAppShell(req, res) {
   const store = initStore();
   const { component: PageComponent } = reactRouterRoutes.filter(route => matchPath(req.url, route))[0];
 
-  PageComponent.getInitialState({ store }).then(initialState => {
+  const opts = {
+    store,
+    slug: req.params.slug
+  };
+
+  PageComponent.getInitialState(opts).then(initialState => {
     const html = ReactDOMServer.renderToString(
       <ReduxProvider store={store}>
         <StaticRouter location={req.url} context={routerContext}>
