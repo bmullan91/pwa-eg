@@ -15,15 +15,15 @@ const routeConfig = [
   {
     path: '/',
     exact: true,
-    loadComponent: () => System.import('../../app/pages/Home')
+    loadComponent: () => System.import(/* webpackChunkName: "home" */'../../app/pages/Home')
   },
   {
     path: '/story/:slug',
-    loadComponent: () => System.import('../../app/pages/Article')
+    loadComponent: () => System.import(/* webpackChunkName: "article" */'../../app/pages/Article')
   },
   {
     path: '/app-shell',
-    loadComponent: () => System.import('../../app/pages/Loading')
+    loadComponent: () => System.import(/* webpackChunkName: "loading" */'../../app/pages/Loading')
   }
 ];
 

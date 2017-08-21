@@ -14,6 +14,6 @@ workboxSW.router.registerRoute(
 );
 
 workboxSW.router.registerRoute(
-  '/api/initial-states/:contentType/:slug',
+  '/api/initial-states/:contentType/:slug?',
   workboxSW.strategies.cacheFirst()
 );
