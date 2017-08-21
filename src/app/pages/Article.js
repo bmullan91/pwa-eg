@@ -17,16 +17,6 @@ class ArticlePage extends Component {
   }
 }
 
-ArticlePage.getInitialState = ({ store }) => {
-  return store.dispatch(fetchInitialStateAction({
-    // get from pass prop
-    // or we always populate the store with the context info
-    contentType: 'article',
-    slug: 'hello-world'
-  }))
-  .then(() => store.getState());
-};
-
 function mstp(state) {
   return {
     primary: state.primary,

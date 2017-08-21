@@ -10,7 +10,6 @@ const { initStore } = require('../../app/store');
 const container = document.getElementById('app-root');
 
 const LoadingPage = require('../../app/pages/Loading');
-// const PageLoader = require('../../app/components/PageLoader');
 
 const routeConfig = [
   {

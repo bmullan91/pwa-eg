@@ -6,7 +6,7 @@ module.exports = function(req, res) {
       slug
     },
     primary: {
-      hed: slug
+      hed: slug || 'welcome'
     }
   };
 

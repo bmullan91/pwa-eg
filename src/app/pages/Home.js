@@ -17,16 +17,6 @@ class HomePage extends Component {
   }
 }
 
-HomePage.getInitialState = ({ store }) => {
-  return store.dispatch(fetchInitialStateAction({
-    // get from pass prop
-    // or we always populate the store with the context info
-    contentType: 'homepage',
-    slug: 'welcome'
-  }))
-  .then(() => store.getState());
-};
-
 function mstp(state) {
   return {
     primary: state.primary,

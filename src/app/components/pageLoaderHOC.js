@@ -2,10 +2,10 @@ const React = require('react');
 const { PropTypes, PureComponent } = React;
 const { connect } = require('react-redux');
 
+const { fetchInitialStateAction } = require('../store');
 const DefaultLoadingPage = require('../pages/Loading');
 
 function mstp(state, ownProps) {
-  debugger;
   return Object.assign({}, ownProps, {
     isLoading: state.context.isLoading,
     contentType: state.context.contentType
@@ -20,7 +20,6 @@ function pageLoaderHOC(options) {
     contentType
   } = options;
 
-
   class PageLoader extends PureComponent {
     constructor(props) {
       super(props);
@@ -28,7 +27,6 @@ function pageLoaderHOC(options) {
         canRenderPage: props.contentType === contentType
       };
     }
-
 
     componentWillReceiveProps(nextProps) {
       if (this.state.canRenderPage) {
@@ -51,17 +49,18 @@ function pageLoaderHOC(options) {
         return;
       }
 
-
+      const { match: matchedRoute } = this.props;
       const { store } = this.context;
-      // see props from the router here
-      // pick contentType
-      // or slug from the params?
+      const opts = {
+        store,
+        slug: matchedRoute.params.slug
+      };
 
-      PageLoader.getInitialState({ store }).then(() => {
+      PageLoader.getInitialState(opts).then(() => {
         this.setState({
           canRenderPage: true
         });
-      })
+      });
     }
 
     render() {
@@ -75,7 +74,13 @@ function pageLoaderHOC(options) {
     if (PageComponent.getInitialState) {
       return PageComponent.getInitialState(opts);
     }
-    // do default behaviour here
+
+    const { store, slug = '' } = opts;
+    return store.dispatch(fetchInitialStateAction({
+      contentType,
+      slug
+    }))
+    .then(() => store.getState());
   };
 
   PageLoader.contextTypes = {
