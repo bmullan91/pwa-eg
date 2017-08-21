@@ -18,7 +18,7 @@ app.use((req, res, next) => {
 });
 app.use(express.static(path.join(__dirname, '../../build')));
 app.get('/', appShellHandler);
-app.get('/article', appShellHandler);
+app.get('/story/:slug', appShellHandler);
 app.get('/app-shell', appShellHandler);
 app.get('/api/initial-states/:contentType/:slug', apiInitialStatesHandler);
 app.get('/sw.js', express.static(path.join(__dirname, '../../build/public/js')))

@@ -45,11 +45,11 @@ function fetchInitialStateAction({ contentType, slug }) {
 
 
 function fetchInitialStateReducer(state, action) {
-  const newPrimary = Object.assign({}, state.primary, {
-    hed: 'loading...'
+  const newContext = Object.assign({}, state.context, {
+    isLoading: true
   });
 
-  return Object.assign({}, state, { primary: newPrimary });
+  return Object.assign({}, state, { context: newContext });
 }
 
 function updateInitialStateReducer(state, action) {

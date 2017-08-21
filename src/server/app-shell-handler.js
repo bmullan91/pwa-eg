@@ -12,7 +12,7 @@ const reactRouterRoutes = [
     component: require('../app/pages/Home')
   },
   {
-    path: '/article',
+    path: '/story/:slug',
     component: require('../app/pages/Article')
   },
   {

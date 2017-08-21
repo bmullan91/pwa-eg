@@ -10,7 +10,7 @@ const { initStore } = require('../../app/store');
 const container = document.getElementById('app-root');
 
 const LoadingPage = require('../../app/pages/Loading');
-const PageLoader = require('../../app/components/PageLoader');
+// const PageLoader = require('../../app/components/PageLoader');
 
 const routeConfig = [
   {
@@ -19,7 +19,7 @@ const routeConfig = [
     loadComponent: () => System.import('../../app/pages/Home')
   },
   {
-    path: '/article',
+    path: '/story/:slug',
     loadComponent: () => System.import('../../app/pages/Article')
   },
   {
@@ -35,16 +35,7 @@ function init() {
     return Object.assign({}, route, {
       component: Loadable({
         loading: LoadingPage,
-        loader: route.loadComponent,
-        render: (PageComponent, props) => {
-          return (
-            <PageLoader
-              store={store}
-              PageComponent={PageComponent}
-              LoadingComponent={LoadingPage}
-            />
-          );
-        }
+        loader: route.loadComponent
       })
     });
   });

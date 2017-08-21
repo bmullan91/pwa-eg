@@ -10,7 +10,7 @@ class App extends Component {
       <div>
         <ul>
           <li><Link to="/">Home Page</Link></li>
-          <li><Link to="/article">Article Page</Link></li>
+          <li><Link to="/story/omg-guess-what">Article Page</Link></li>
         </ul>
         <hr/>
         <Switch>
