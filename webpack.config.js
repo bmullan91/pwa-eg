@@ -46,6 +46,14 @@ const commonConfig = {
     path: PATHS.build
   },
   plugins: [
+    new webpack.optimize.CommonsChunkPlugin({
+      // the entry point name
+      name: 'app-shell',
+      // how we name the common chunk
+      async: 'common',
+      // all chunks
+      children: true
+    }),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV)
