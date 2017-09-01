@@ -14,9 +14,7 @@ class LoadingPage extends Component {
 // nothing to fetch for the app shell
 LoadingPage.getInitialState = ({ store }) => {
   return Promise.resolve({
-    context: {
-      isAppShell: true
-    },
+    context: {},
     primary: {
       hed: 'loading'
     }

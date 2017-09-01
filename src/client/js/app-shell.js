@@ -29,50 +29,24 @@ const routeConfig = [
 
 function init() {
   const store = initStore(window.__INITIAL_STATE__);
-  const isAppShell = window.__INITIAL_STATE__.context.isAppShell;
-  const routes = routeConfig.map(route => {
-    return Object.assign({}, route, {
+  const promiseRoutes = routeConfig.map(route => {
+    if (matchPath(window.location.pathname, route)) {
+      return route.loadComponent()
+        .then(component => Object.assign({}, route, { component }));
+    }
+
+    return Promise.resolve(Object.assign({}, route, {
       component: Loadable({
         loading: LoadingPage,
         loader: route.loadComponent
       })
-    });
+    }));
   });
 
-  if (isAppShell) {
-    return Promise.resolve({
-      routes,
-      store
-    });
-  }
-
-
-  let matchedRoute;
-  const asyncRoutes = routes.filter((route) => {
-    if (matchPath(window.location.pathname, route)) {
-      matchedRoute = route;
-      // exclude this - we're going to load its component
-      return false;
-    }
-
-    return true;
-  });
-
-  if (!matchedRoute || typeof matchedRoute.loadComponent !== 'function') {
-    return Promise.resolve({
-      store,
-      routes: asyncRoutes
-    });
-  }
-
-  return matchedRoute.loadComponent()
-    .then(component => {
-      const updatedMatchedRoute = Object.assign({}, matchedRoute, { component });
-      return {
-        store, // store will have been updated after getInitialState
-        routes: [...asyncRoutes, updatedMatchedRoute]
-      }
-    });
+  return Promise.all(promiseRoutes).then(routes => ({
+    store,
+    routes
+  }));
 }
 
 init().then(({ routes, store }) => {
